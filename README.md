@@ -1,2 +1,2 @@
 # world-builder
-A world building and generating worlds using Python.
+A world building and generating worlds using Nim.
