@@ -8,6 +8,7 @@ type
     generate_pantheon*: bool
     generate_cities*: bool
     num_cities*: int
+    num_deities*: int
     cities*: Table[string, int]
 
 proc newParameters*(): Parameters =
@@ -18,6 +19,7 @@ proc newParameters*(): Parameters =
   result.generate_pantheon = false
   result.generate_cities = false
   result.num_cities = 0
+  result.num_deities = 0
   result.biomes = {
     "plains": false,
     "forest": false,
@@ -39,5 +41,6 @@ proc newParameters*(): Parameters =
     "halfling": 0,
     "orcish": 0,
     "goblin": 0,
-    "gnome": 0
+    "gnome": 0,
+    "tiefling": 0
   }.toTable
