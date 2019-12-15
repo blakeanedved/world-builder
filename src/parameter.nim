@@ -42,5 +42,6 @@ proc newParameters*(): Parameters =
     "orcish": 0,
     "goblin": 0,
     "gnome": 0,
+    "dragonborn": 0,
     "tiefling": 0
   }.toTable

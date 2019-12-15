@@ -1,9 +1,12 @@
 import nigui
-import strformat
+# import strformat
 import strutils
-import sequtils
+# import sequtils
 import parseutils
+import tables
 import parameter
+import builder
+import towns
 
 app.init()
 
@@ -11,13 +14,33 @@ type
     TextBoxPair = ref object of RootObj
         box: TextBox
         name: Label
-
+     
 var window = newWindow("World Builder")
+var red = rgb(255,200,200)
+var white = rgb(255,255,255)
+var gray = rgb(146,148,148)
+var progress* = newProgressBar()
+var progressInfo* = newLabel("Gathering Data")
+
+
+window.onKeyDown = proc(event: KeyboardEvent) =
+    if Key_Q.isDown() and Key_Command.isDown():
+        app.quit()
+
+proc validate(textBox: TextBox): bool =
+    var temp: int
+    if parseInt(textBox.text, temp) == 0:
+        textBox.backgroundColor = red
+        return false
+    else:
+        textBox.backgroundColor = white
+        textBox.text = intToStr(temp)
+        return true
+
 window.height = 500.scaleToDpi
 window.width = 700.scaleToDpi
 var container = newLayoutContainer(Layout_Vertical)
 window.add(container)
-
 container.height = 500
 var mainContainer = newLayoutContainer(Layout_Horizontal)
 container.add(mainContainer)
@@ -60,7 +83,7 @@ biomeSelect.height=200
 text = newLabel("Biomes:\n")
 var biomes: seq[Checkbox]
 
-for i,s in ["Plains","Forest","Desert","Mountains","Swamp","Jungle","Hills","Tundra"]:
+for i,s in @["Plains","Forest","Desert","Mountains","Swamp","Jungle","Hills","Tundra"]:
     biomes.add(newCheckbox(s))
 
 biomeSelect.add(text)
@@ -78,9 +101,8 @@ rightContainer.add(generateCities)
 var cityRow = newLayoutContainer(Layout_Horizontal)
 generateCities.add(cityRow)
 cityRow.width = 200
-var cities = newCheckbox()
-text = newLabel("Generate Cities?")
-cityRow.add(text)
+var cities = newCheckbox("Generate Cities?")
+
 cityRow.add(cities)
 
 var cityDetails = newLayoutContainer(Layout_Vertical)
@@ -155,21 +177,10 @@ submitContainer.xAlign = XAlign_Center
 submitContainer.yAlign = YAlign_Center
 var submit = newButton("Generate")
 submitContainer.add(submit)
+submitContainer.height = 50
 container.add(submitContainer)
 
-var red = rgb(255,200,200)
-var white = rgb(255,255,255)
-
-proc validate(textBox: TextBox): bool =
-    var temp: int
-    if parseInt(textBox.text, temp) == 0:
-        textBox.backgroundColor = red
-        return false
-    else:
-        textBox.backgroundColor = white
-        textBox.text = intToStr(temp)
-        return true
-
+var generateSuccess = false
 
 submit.onClick = proc(event: ClickEvent) = 
         var valid = true
@@ -195,18 +206,47 @@ submit.onClick = proc(event: ClickEvent) =
         if valid:
             var stats = newParameters()
             stats.name = worldName.text
+            worldName.editable = false
+            worldName.textColor = gray
             discard parseInt(worldSizeX.text, stats.width)
             discard parseInt(worldSizeY.text, stats.height)
-            discard parseInt(cityNum.text, stats.num_cities)
-            discard parseInt(numDeities.text, stats.num_deities)
+            worldSizeX.editable = false
+            worldSizeX.textColor = gray
+            worldSizeY.editable = false
+            worldSizeY.textColor = gray
             stats.generate_cities = cities.checked
+            cities.enabled = false
             if cities.checked:
-                for i,s in @["european","asian","african","middle east","human","elvish","dwarvish","halfling","orc","goblin","gnome","dragonborn","tiefling"]:
-                    var temp: int
-                    discard parseInt(cityTypes[i].box.text, temp)
-                   # stats.cities[s] = temp
+                discard parseInt(cityNum.text, stats.num_cities)
+                cityNum.editable = false
+                cityNum.textColor = gray
+                for i,s in ["european","asian","african","middle eastern","human","elvish","dwarven","halfling","orcish","goblin","gnome","dragonborn","tiefling"]:
+                    discard parseInt(cityTypes[i].box.text, stats.cities[s])
+                    cityTypes[i].box.editable = false
+                    cityTypes[i].box.textColor = rgb(146,148,148)
             stats.generate_pantheon = createPantheon.checked
-            
+            createPantheon.enabled = false
+            if createPantheon.checked:
+                discard parseInt(numDeities.text, stats.num_deities)
+                numDeities.editable = false
+                numDeities.textColor = gray
+            for i,s in @["plains","forest","desert","mountains","swamp","jungle","hills","tundra"]:
+                stats.biomes[s] = biomes[i].checked
+                biomes[i].enabled = false
+            submit.enabled = false
+            progress.width = 500
+            var progressArea = newLayoutContainer(Layout_Vertical)
+            progressArea.widthMode = WidthMode_Expand
+            progressArea.xAlign = XAlign_Center
+            progressArea.yAlign = YAlign_Center
+            progressArea.add(progress)
+            progressInfo.backgroundColor = rgb(244,242,241)
+            progressArea.add(progressInfo)
+            container.add(progressArea)
+            generateSuccess = generateWorld(stats)
+
+if generateSuccess:
+    discard
 window.show()
 app.run()
 

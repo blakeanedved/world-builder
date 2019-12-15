@@ -1,3 +1,3 @@
 import parameter
 
-proc generateWorld*(P: Parameters) = discard
+proc generateWorld*(P: Parameters): bool = discard
