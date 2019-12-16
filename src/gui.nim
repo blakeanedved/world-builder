@@ -27,15 +27,25 @@ window.onKeyDown = proc(event: KeyboardEvent) =
     if Key_Q.isDown() and Key_Command.isDown():
         app.quit()
 
-proc validate(textBox: TextBox): bool =
+proc validate(textBox: TextBox, size: bool = false): bool =
     var temp: int
-    if parseInt(textBox.text, temp) == 0:
-        textBox.backgroundColor = red
-        return false
+    if not size:
+        if parseInt(textBox.text, temp) == 0:
+            textBox.backgroundColor = red
+            return false
+        else:
+            textBox.backgroundColor = white
+            textBox.text = intToStr(temp)
+            return true
     else:
-        textBox.backgroundColor = white
-        textBox.text = intToStr(temp)
-        return true
+        var valid = parseInt(textBox.text, temp)
+        if valid == 0 or temp == 0:
+            textBox.backgroundColor = red
+            return false
+        else:
+            textBox.backgroundColor = white
+            textBox.text = intToStr(temp)
+            return true
 
 window.height = 500.scaleToDpi
 window.width = 700.scaleToDpi
@@ -190,8 +200,9 @@ submit.onClick = proc(event: ClickEvent) =
         else:
             worldName.backgroundColor = white
         
-        valid = validate(worldSizeX)
-        valid = validate(worldSizeY)
+        valid = validate(worldSizeX, true)
+        if valid:
+            valid = validate(worldSizeY, true)
         if cities.checked:
             valid = validate(cityNum)
             var forValid = 0
@@ -201,7 +212,7 @@ submit.onClick = proc(event: ClickEvent) =
                     forValid += 1
             if forValid > 0:
                 valid = false
-        if createPantheon.checked:
+        if createPantheon.checked and valid:
             valid = validate(numDeities)
         if valid:
             var stats = newParameters()
@@ -243,10 +254,8 @@ submit.onClick = proc(event: ClickEvent) =
             progressInfo.backgroundColor = rgb(244,242,241)
             progressArea.add(progressInfo)
             container.add(progressArea)
-            generateSuccess = generateWorld(stats)
-
-if generateSuccess:
-    discard
+            generateWorld(stats)
+            
 window.show()
 app.run()
 

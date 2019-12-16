@@ -289,3 +289,9 @@ var cityNames* = {
     ]
     }.toTable
 
+# var deities* = [
+#     {"name": ""
+#     }.toTable, 
+#     {"epic": false
+#     }.toTable
+#     ]
