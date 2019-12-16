@@ -10,18 +10,28 @@ type
         race*: string
         posX*: int
         posY*: int
+        index*: int
 
-proc rename*(town: Town) = 
+proc pickName*(town: Town) = 
     town.name = sample(cityNames[town.race])
-proc rename*(town: Town, name: string) = 
-    town.name = name
-proc newTown*(x, y: int, race: string): Town = 
-    result = new Town
-    result.race = race
-    result.posX = x
-    result.posY = y
-    result.rename()
-proc populationChange*(town: Town) = 
-    discard
-proc populationChange*(town: Town, population: int) =
-    town.population = population
+proc genPopulation*(town:Town) =
+    var min = rand(1000..25000)
+    var max = rand(45000..200000)
+    town.population = rand(min..max)
+var towns: seq[Town]
+
+proc newTown*(race: string): int = 
+    var temp = new Town
+    temp.race = race
+    temp.pickName()
+    temp.genPopulation()
+    temp.index = towns.len + 1
+    towns.add(temp)
+    return towns.len
+
+proc writeTowns*() = 
+    let file = open("townDetails.csv", fmWrite)
+    defer: file.close()
+    file.writeLine("Name,Population,Race,Map Key")
+    for town in towns:
+        file.writeLine(town.name & "," & town.population.astToStr() & "," & town.race & "," & town.index.astToStr())

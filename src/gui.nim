@@ -47,11 +47,11 @@ proc validate(textBox: TextBox, size: bool = false): bool =
             textBox.text = intToStr(temp)
             return true
 
-window.height = 500.scaleToDpi
+window.height = 550.scaleToDpi
 window.width = 700.scaleToDpi
 var container = newLayoutContainer(Layout_Vertical)
 window.add(container)
-container.height = 500
+container.height = 550
 var mainContainer = newLayoutContainer(Layout_Horizontal)
 container.add(mainContainer)
 var leftContainer = newLayoutContainer(Layout_Vertical)
@@ -185,12 +185,28 @@ var submitContainer = newLayoutContainer(Layout_Horizontal)
 submitContainer.widthMode = WidthMode_Expand
 submitContainer.xAlign = XAlign_Center
 submitContainer.yAlign = YAlign_Center
+var pathContainer = newLayoutContainer(Layout_Horizontal)
+pathContainer.widthMode = WidthMode_Expand
+pathContainer.xAlign = XAlign_Center
+pathContainer.yAlign = YAlign_Center
 var submit = newButton("Generate")
+var filePath = newButton("Select Path")
+var path = newLabel("Path not chosen")
 submitContainer.add(submit)
+submitContainer.add(filePath)
 submitContainer.height = 50
+pathContainer.add(path)
 container.add(submitContainer)
+container.add(pathContainer)
 
-var generateSuccess = false
+filePath.onClick = proc(event: ClickEvent) =
+        var dialog = newSelectDirectoryDialog()
+        dialog.title  = "Select Folder"
+        dialog.run()
+        if dialog.selectedDirectory == "":
+            path.text = "Path not chosen"
+        else:
+            path.text = dialog.selectedDirectory
 
 submit.onClick = proc(event: ClickEvent) = 
         var valid = true
@@ -214,6 +230,9 @@ submit.onClick = proc(event: ClickEvent) =
                 valid = false
         if createPantheon.checked and valid:
             valid = validate(numDeities)
+        if path.text == "Path not chosen" or path.text == "Please select a path":
+            path.text = "Please select a path"
+            valid = false
         if valid:
             var stats = newParameters()
             stats.name = worldName.text
@@ -245,6 +264,8 @@ submit.onClick = proc(event: ClickEvent) =
                 stats.biomes[s] = biomes[i].checked
                 biomes[i].enabled = false
             submit.enabled = false
+            filePath.enabled = false
+            path.textColor = gray
             progress.width = 500
             var progressArea = newLayoutContainer(Layout_Vertical)
             progressArea.widthMode = WidthMode_Expand
