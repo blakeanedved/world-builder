@@ -14,6 +14,7 @@ bin           = @["world_builder"]
 requires "nim >= 1.0.0"
 requires "nigui >= 0.2.2"
 requires "nimnoise >= 0.1.0"
+requires "imageman >= 0.6.3"
 
 # Tasks
 
