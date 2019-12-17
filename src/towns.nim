@@ -2,7 +2,6 @@ import random
 import tables
 import nameList
 import npc
-
 randomize()
 
 
@@ -94,6 +93,7 @@ proc newTown*(race: string): int =
     towns.add(temp)
     return towns.len
 proc writeTowns*(path: string) = 
+    progress.value = 0.8
     let file = open(path & "/townDetails.csv", fmWrite)
     defer: file.close()
     file.writeLine("Name,Population,Race,Color")

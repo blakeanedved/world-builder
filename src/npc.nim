@@ -37,6 +37,10 @@ let ages = {
         "min": 20,
         "max": 60
     }.toTable,
+    "middle eastern": {
+        "min": 25,
+        "max": 60
+    }.toTable,
     "human": {
         "min": 30,
         "max": 70

@@ -1,12 +1,11 @@
 import nigui
-# import strformat
 import strutils
-# import sequtils
 import parseutils
 import tables
 import parameter
 import builder
 import towns
+import progress
 
 app.init()
 
@@ -15,9 +14,6 @@ let red = rgb(255,200,200)
 let white = rgb(255,255,255)
 let gray = rgb(146,148,148)
 
-#export progress bar details
-var progress* = newProgressBar()
-var progressInfo* = newLabel("Gathering Data")
 
 type
     TextBoxPair = ref object of RootObj
@@ -240,6 +236,8 @@ submit.onClick = proc(event: ClickEvent) =
         #if everything is valid
         if valid:
             #progress bar
+            progress = newProgressBar()
+            progressInfo = newLabel("Gathering Data")
             progress.width = 500
             var progressArea = newLayoutContainer(Layout_Vertical)
             progressArea.widthMode = WidthMode_Expand
