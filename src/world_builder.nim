@@ -24,7 +24,10 @@ type
 #validates integer values
 proc validate(textBox: TextBox, size: bool = false): bool =
     var temp: int
-    if not size:
+    if textBox.text == "" or textBox.text == "0":
+        textBox.text = "0"
+        return true
+    elif not size:
         if parseInt(textBox.text, temp) == 0:
             textBox.backgroundColor = red
             return false
