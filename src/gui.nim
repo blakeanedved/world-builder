@@ -95,7 +95,7 @@ var biomeSelect = newLayoutContainer(Layout_Vertical)
 leftContainer.add(biomeSelect)
 biomeSelect.height=200
 
-text = newLabel("Biomes:\n")
+text = newLabel("Biomes (Not implemented):\n")
 var biomes: seq[Checkbox]
 
 for i,s in @["Plains","Forest","Desert","Mountains","Swamp","Jungle","Hills","Tundra"]:
@@ -274,6 +274,8 @@ submit.onClick = proc(event: ClickEvent) =
             createPantheon.enabled = false
             if createPantheon.checked:
                 discard parseInt(numDeities.text, stats.num_deities)
+                if stats.num_deities > 21:
+                    stats.num_deities = 21
                 numDeities.editable = false
                 numDeities.textColor = gray
             for i,s in @["plains","forest","desert","mountains","swamp","jungle","hills","tundra"]:

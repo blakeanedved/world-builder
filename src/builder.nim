@@ -12,6 +12,7 @@ const
   BEACH = 88
   MOUNTAINS = 140
   SNOW = 210
+  CITY_SIZE = 7
 
 var color: ColorRGBAU
 proc setColor(r, g, b: float64) =
@@ -64,6 +65,7 @@ proc generateWorld*(P: Parameters) =
     while P.cities[cities[city_pointer]] == 0:
       city_pointer += 1
       if city_pointer == cities.len(): city_pointer = 0
+    echo "selected: " & cities[city_pointer]
     discard newTown(cities[city_pointer])
     while true:
       let y = rand(0..<h)
@@ -82,8 +84,8 @@ proc generateWorld*(P: Parameters) =
           of "goblin": setColor(255, 135, 215)
           of "gnome": setColor(0, 255, 255)
 
-        for ys in -3..3:
-          for xs in -3..3:
+        for ys in -CITY_SIZE..CITY_SIZE:
+          for xs in -CITY_SIZE..CITY_SIZE:
             img.data[(y + ys) * img.width + (x + xs)] = color
         
         break
