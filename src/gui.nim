@@ -10,23 +10,22 @@ import towns
 
 app.init()
 
+#color constants
+let red = rgb(255,200,200)
+let white = rgb(255,255,255)
+let gray = rgb(146,148,148)
+
+#export progress bar details
+var progress* = newProgressBar()
+var progressInfo* = newLabel("Gathering Data")
+
 type
     TextBoxPair = ref object of RootObj
         box: TextBox
         name: Label
      
-var window = newWindow("World Builder")
-var red = rgb(255,200,200)
-var white = rgb(255,255,255)
-var gray = rgb(146,148,148)
-var progress* = newProgressBar()
-var progressInfo* = newLabel("Gathering Data")
 
-
-window.onKeyDown = proc(event: KeyboardEvent) =
-    if Key_Q.isDown() and Key_Command.isDown():
-        app.quit()
-
+#validates integer values
 proc validate(textBox: TextBox, size: bool = false): bool =
     var temp: int
     if not size:
@@ -47,8 +46,12 @@ proc validate(textBox: TextBox, size: bool = false): bool =
             textBox.text = intToStr(temp)
             return true
 
+#window
+var window = newWindow("World Builder")
 window.height = 550.scaleToDpi
 window.width = 700.scaleToDpi
+            
+#setting up main containers
 var container = newLayoutContainer(Layout_Vertical)
 window.add(container)
 container.height = 550
@@ -61,6 +64,7 @@ var rightContainer = newLayoutContainer(Layout_Horizontal)
 mainContainer.add(rightContainer)
 rightContainer.height = 400
 
+#get basic world info
 var worldSpecs = newLayoutContainer(Layout_Vertical)
 worldSpecs.height = 90
 leftContainer.add(worldSpecs)
@@ -86,6 +90,7 @@ worldContainer.add(text)
 worldContainer.add(worldSizeY)
 worldSpecs.add(worldContainer)
 
+#get biome details
 var biomeSelect = newLayoutContainer(Layout_Vertical)
 leftContainer.add(biomeSelect)
 biomeSelect.height=200
@@ -104,7 +109,7 @@ for i in 0..3:
     biomeRow.add(biomes[(i * 2) + 1])
     biomeSelect.add(biomeRow)
     biomeRow.width=200
-
+#generate cities y/n
 var generateCities = newLayoutContainer(Layout_Vertical)
 rightContainer.add(generateCities)
 
@@ -112,9 +117,9 @@ var cityRow = newLayoutContainer(Layout_Horizontal)
 generateCities.add(cityRow)
 cityRow.width = 200
 var cities = newCheckbox("Generate Cities?")
-
 cityRow.add(cities)
 
+#container for cities
 var cityDetails = newLayoutContainer(Layout_Vertical)
 generateCities.add(cityDetails)
 cityDetails.height = 350
@@ -132,7 +137,7 @@ cityDetails.add(cityRow)
 cityRow.height = 50
 
 var cityTypes: seq[TextBoxPair]
-for i,s in @["European","Asian","African","Middle East","Human","Elvish","Dwarvish","Halfling","Orc","Goblin","Gnome","Dragonborn","Tiefling"]:
+for i,s in @["European","Asian","African","Middle East","Human","Elvish","Dwarvish","Halfling","Orc","Goblin","Gnome"]:
     cityTypes.add(TextBoxPair(box: newTextBox(), name: newLabel(s)))
     cityTypes[i].box.width = 50
     
@@ -140,21 +145,13 @@ for i in 0..5:
     cityRow = newLayoutContainer(Layout_Horizontal)
     cityRow.add(cityTypes[i * 2].box)
     cityRow.add(cityTypes[i * 2].name)
-    cityRow.add(cityTypes[(i * 2) + 1].box)
-    cityRow.add(cityTypes[(i * 2) + 1].name)
+    if i != 5:
+        cityRow.add(cityTypes[(i * 2) + 1].box)
+        cityRow.add(cityTypes[(i * 2) + 1].name)
     cityDetails.add(cityRow)
     cityRow.height = 35
-cityRow = newLayoutContainer(Layout_Horizontal)
-cityRow.add(cityTypes[12].box)
-cityRow.add(cityTypes[12].name)
-cityDetails.add(cityRow)
-cityRow.height = 35
-cities.onToggle = proc (event: ToggleEvent) =
-    if cities.checked:
-        cityDetails.show()
-    else:
-        cityDetails.hide()
 
+#gather details about the pantheon
 var deities = newLayoutContainer(Layout_Vertical)
 leftContainer.add(deities)
 
@@ -175,12 +172,7 @@ numDeityRow.add(text)
 numDeityRow.add(numDeities)
 numDeityRow.height = 35
 
-createPantheon.onToggle = proc(event: ToggleEvent) =
-        if createPantheon.checked:
-            numDeityRow.show()
-        else:
-            numDeityRow.hide()
-
+#submit and file path buttons
 var submitContainer = newLayoutContainer(Layout_Horizontal)
 submitContainer.widthMode = WidthMode_Expand
 submitContainer.xAlign = XAlign_Center
@@ -199,6 +191,7 @@ pathContainer.add(path)
 container.add(submitContainer)
 container.add(pathContainer)
 
+#file path button
 filePath.onClick = proc(event: ClickEvent) =
         var dialog = newSelectDirectoryDialog()
         dialog.title  = "Select Folder"
@@ -207,7 +200,7 @@ filePath.onClick = proc(event: ClickEvent) =
             path.text = "Path not chosen"
         else:
             path.text = dialog.selectedDirectory
-
+#submit button
 submit.onClick = proc(event: ClickEvent) = 
         var valid = true
         if worldName.text == "":
@@ -216,24 +209,47 @@ submit.onClick = proc(event: ClickEvent) =
         else:
             worldName.backgroundColor = white
         
-        valid = validate(worldSizeX, true)
-        if valid:
-            valid = validate(worldSizeY, true)
+        
+        if not validate(worldSizeY, true) or not validate(worldSizeX, true):
+            discard validate(worldSizeX, true)
+            valid = false
         if cities.checked:
             valid = validate(cityNum)
             var forValid = 0
-            for i in 0..12:
+            var sum = 0
+            for i in 0..10:
                 valid = validate(cityTypes[i].box)
+                if valid:
+                    var temp: int
+                    discard parseInt(cityTypes[i].box.text, temp)
+                    sum += temp
                 if not valid:
                     forValid += 1
+            var temp: int
+            discard parseInt(cityNum.text, temp)
             if forValid > 0:
+                valid = false
+            elif temp != sum:
+                cityNum.backgroundColor = red
                 valid = false
         if createPantheon.checked and valid:
             valid = validate(numDeities)
         if path.text == "Path not chosen" or path.text == "Please select a path":
             path.text = "Please select a path"
             valid = false
+        #if everything is valid
         if valid:
+            #progress bar
+            progress.width = 500
+            var progressArea = newLayoutContainer(Layout_Vertical)
+            progressArea.widthMode = WidthMode_Expand
+            progressArea.xAlign = XAlign_Center
+            progressArea.yAlign = YAlign_Center
+            progressArea.add(progress)
+            progressInfo.backgroundColor = rgb(244,242,241)
+            progressArea.add(progressInfo)
+            container.add(progressArea)
+            #put all the data in the stats object
             var stats = newParameters()
             stats.name = worldName.text
             worldName.editable = false
@@ -250,7 +266,7 @@ submit.onClick = proc(event: ClickEvent) =
                 discard parseInt(cityNum.text, stats.num_cities)
                 cityNum.editable = false
                 cityNum.textColor = gray
-                for i,s in ["european","asian","african","middle eastern","human","elvish","dwarven","halfling","orcish","goblin","gnome","dragonborn","tiefling"]:
+                for i,s in ["european","asian","african","middle eastern","human","elvish","dwarven","halfling","orcish","goblin","gnome"]:
                     discard parseInt(cityTypes[i].box.text, stats.cities[s])
                     cityTypes[i].box.editable = false
                     cityTypes[i].box.textColor = rgb(146,148,148)
@@ -264,19 +280,50 @@ submit.onClick = proc(event: ClickEvent) =
                 stats.biomes[s] = biomes[i].checked
                 biomes[i].enabled = false
             submit.enabled = false
+            stats.path = path.text
             filePath.enabled = false
             path.textColor = gray
-            progress.width = 500
-            var progressArea = newLayoutContainer(Layout_Vertical)
-            progressArea.widthMode = WidthMode_Expand
-            progressArea.xAlign = XAlign_Center
-            progressArea.yAlign = YAlign_Center
-            progressArea.add(progress)
-            progressInfo.backgroundColor = rgb(244,242,241)
-            progressArea.add(progressInfo)
-            container.add(progressArea)
+            progress.value = 0.25
+            progressInfo.text = "Generating world map"
             generateWorld(stats)
-            
+            if createPantheon.checked:
+                progress.value = 0.8
+                progressInfo.text = "Generating pantheon file"
+                writeDeities(stats.num_deities, path.text)
+            if cities.checked:
+                progress.value = 0.85
+                progressInfo.text = "Generating towns file"
+                writeTowns(path.text)
+                progress.value = 0.95
+                progressInfo.text = "Generating NPC file"
+                writeNpcs(path.text)
+            progress.value = 1
+            progressInfo.text = "Generation Complete"
+
+
+#keyboard shortcuts
+window.onKeyDown = proc(event: KeyboardEvent) =
+    when hostOS == "macosx":
+        if Key_Q.isDown() and Key_Command.isDown():
+            app.quit()
+    elif hostOS == "windows":
+        if Key_Q.isDown() and (Key_ControlL.isDown() or Key_ControlR.isDown()):
+            app.quit()
+
+#toggle city details' visibility 
+cities.onToggle = proc (event: ToggleEvent) =
+    if cities.checked:
+        cityDetails.show()
+    else:
+        cityDetails.hide()
+
+#toggle patheon visibility
+createPantheon.onToggle = proc(event: ToggleEvent) =
+        if createPantheon.checked:
+            numDeityRow.show()
+        else:
+            numDeityRow.hide()
+
 window.show()
 app.run()
 

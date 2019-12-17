@@ -82,12 +82,13 @@ proc generateWorld*(P: Parameters) =
           of "goblin": setColor(255, 135, 215)
           of "gnome": setColor(0, 255, 255)
 
-        for ys in -1..1:
-          for xs in -1..1:
-            img.data[(y + ys) * img.width * (x + xs)] = color
+        for ys in -3..3:
+          for xs in -3..3:
+            img.data[(y + ys) * img.width + (x + xs)] = color
         
         break
 
 
   
-  img.savePNG("image.png")
+  img.savePNG(P.path & "/world.png")
+

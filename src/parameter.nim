@@ -10,6 +10,7 @@ type
     num_cities*: int
     num_deities*: int
     cities*: Table[string, int]
+    path*: string
 
 proc newParameters*(): Parameters =
   result = new Parameters
@@ -41,7 +42,6 @@ proc newParameters*(): Parameters =
     "halfling": 0,
     "orcish": 0,
     "goblin": 0,
-    "gnome": 0,
-    "dragonborn": 0,
-    "tiefling": 0
+    "gnome": 0
   }.toTable
+  result.path = "~"
