@@ -215,12 +215,13 @@ submit.onClick = proc(event: ClickEvent) =
             discard validate(worldSizeX, true)
             valid = false
         if cities.checked:
-            valid = validate(cityNum)
+            if not validate(cityNum):
+                valid = false
             var forValid = 0
             var sum = 0
             var tempValid = false
             for i in 0..10:
-                valid = validate(cityTypes[i].box)
+                tempValid = validate(cityTypes[i].box)
                 if tempValid:
                     var temp: int
                     discard parseInt(cityTypes[i].box.text, temp)
@@ -235,7 +236,8 @@ submit.onClick = proc(event: ClickEvent) =
                 cityNum.backgroundColor = red
                 valid = false
         if createPantheon.checked and valid:
-            valid = validate(numDeities)
+            if not validate(numDeities):
+                valid = false
         if path.text == "Path not chosen" or path.text == "Please select a path":
             path.text = "Please select a path"
             path.textColor = rgb(255,0,0)
