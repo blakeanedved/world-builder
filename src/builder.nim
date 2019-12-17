@@ -21,7 +21,7 @@ proc setColor(r, g, b: float64) =
   color.b = b.uint8
   color.a = 255.uint8
 
-proc generateWorld*(P: Parameters) =
+proc generateWorld*(P: var Parameters) =
   let
     w = P.width
     h = P.height
@@ -65,7 +65,7 @@ proc generateWorld*(P: Parameters) =
     while P.cities[cities[city_pointer]] == 0:
       city_pointer += 1
       if city_pointer == cities.len(): city_pointer = 0
-    echo "selected: " & cities[city_pointer]
+    P.cities[cities[city_pointer]] -= 1
     discard newTown(cities[city_pointer])
     while true:
       let y = rand(0..<h)
