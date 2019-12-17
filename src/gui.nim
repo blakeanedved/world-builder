@@ -283,15 +283,13 @@ submit.onClick = proc(event: ClickEvent) =
             stats.path = path.text
             filePath.enabled = false
             path.textColor = gray
-            progress.value = 0.25
-            progressInfo.text = "Generating world map"
             generateWorld(stats)
             if createPantheon.checked:
-                progress.value = 0.8
+                progress.value = 0.9
                 progressInfo.text = "Generating pantheon file"
                 writeDeities(stats.num_deities, path.text)
             if cities.checked:
-                progress.value = 0.85
+                progress.value = 0.93
                 progressInfo.text = "Generating towns file"
                 writeTowns(path.text)
                 progress.value = 0.95
