@@ -24,11 +24,12 @@ type
 #validates integer values
 proc validate(textBox: TextBox, size: bool = false): bool =
     var temp: int
-    if textBox.text == "" or textBox.text == "0":
-        textBox.text = "0"
-        return true
-    elif not size:
-        if parseInt(textBox.text, temp) == 0:
+    if not size:
+        if textBox.text == "" or textBox.text == "0":
+            textBox.text = "0"
+            textBox.backgroundColor = white
+            return true
+        elif parseInt(textBox.text, temp) == 0:
             textBox.backgroundColor = red
             return false
         else:
@@ -199,6 +200,7 @@ filePath.onClick = proc(event: ClickEvent) =
             path.text = "Path not chosen"
         else:
             path.text = dialog.selectedDirectory
+            path.textColor = rgb(0,0,0)
 #submit button
 submit.onClick = proc(event: ClickEvent) = 
         var valid = true
@@ -216,13 +218,14 @@ submit.onClick = proc(event: ClickEvent) =
             valid = validate(cityNum)
             var forValid = 0
             var sum = 0
+            var tempValid = false
             for i in 0..10:
                 valid = validate(cityTypes[i].box)
-                if valid:
+                if tempValid:
                     var temp: int
                     discard parseInt(cityTypes[i].box.text, temp)
                     sum += temp
-                if not valid:
+                if not tempValid:
                     forValid += 1
             var temp: int
             discard parseInt(cityNum.text, temp)
@@ -235,6 +238,7 @@ submit.onClick = proc(event: ClickEvent) =
             valid = validate(numDeities)
         if path.text == "Path not chosen" or path.text == "Please select a path":
             path.text = "Please select a path"
+            path.textColor = rgb(255,0,0)
             valid = false
         #if everything is valid
         if valid:
