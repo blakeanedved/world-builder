@@ -19,5 +19,5 @@ requires "imageman >= 0.6.3"
 # Tasks
 
 task test, "Run the nimble tester":
-    withdir "tests":
-        exec "nim c -r tester"
+  withdir "tests":
+    exec "nim c -r tester"
